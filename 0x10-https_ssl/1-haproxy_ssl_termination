@@ -1,0 +1,20 @@
+  GNU nano 4.8                /etc/haproxy/haproxy.cfg                Modified
+        errorfile 502 /etc/haproxy/errors/502.http
+        errorfile 503 /etc/haproxy/errors/503.http
+        errorfile 504 /etc/haproxy/errors/504.http
+        option forwardfor
+
+frontend web_server
+        bind *:443 ssl crt /etc/haproxy/certs/www.ericwebserver.tech.pem
+        acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+        redirect scheme https if !{ ssl_fc }
+        use_backend letsencrypt-backend if letsencrypt-acl
+        default_backend web_server
+
+backend web_server
+        balance roundrobin
+        server 10558-web-01 35.168.110.114 check
+        server 10558-web-02 3.81.25.54:80 check
+
+backend letsencrypt-backend
+        server letsencrypt 127.0.0.1:54321
